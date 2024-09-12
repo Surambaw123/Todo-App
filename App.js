@@ -1,3 +1,4 @@
+{/* #BSIT-3R4 ACTIVITY#1 #Jimoya, Jude Adrianne B., Sebere Michael*/}
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native';
 
