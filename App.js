@@ -5,10 +5,17 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, FlatList, Alert } 
 export default function App() {
   const [text, setText] = useState('');
   const [todos, setTodos] = useState([]);
+  const [search, setSearch] = useState('');
+  const [editTodo, setEditTodo] = useState(null);
 
   const addTodo = () => {
     if (text.trim().length > 0) {
-      setTodos([...todos, { id: Math.random().toString(), text }]);
+      if (editTodo) {
+        setTodos(todos.map(todo => (todo.id === editTodo.id ? { ...todo, text } : todo)));
+        setEditTodo(null);
+      } else {
+        setTodos([...todos, { id: Math.random().toString(), text }]);
+      }
       setText('');
     }
   };
@@ -31,26 +38,44 @@ export default function App() {
     );
   };
 
+  const startEditTodo = (todo) => {
+    setEditTodo(todo);
+    setText(todo.text);
+  };
+
+  const filteredTodos = todos.filter(todo => todo.text.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Todo List</Text>
       <TextInput
         style={styles.input}
-        placeholder="Add a new todo"
+        placeholder="Search todos"
+        value={search}
+        onChangeText={setSearch}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder={editTodo ? "Edit your todo" : "Add a new todo"}
         value={text}
         onChangeText={setText}
       />
       <TouchableOpacity style={styles.addButton} onPress={addTodo}>
-        <Text style={styles.addButtonText}>Add Todo</Text>
+        <Text style={styles.addButtonText}>{editTodo ? 'Update Todo' : 'Add Todo'}</Text>
       </TouchableOpacity>
       <FlatList
-        data={todos}
+        data={filteredTodos}
         renderItem={({ item }) => (
           <View style={styles.todoItem}>
             <Text style={styles.todoText}>{item.text}</Text>
-            <TouchableOpacity style={styles.removeButton} onPress={() => removeTodo(item.id)}>
-              <Text style={styles.removeText}>Delete</Text>
-            </TouchableOpacity>
+            <View style={styles.todoActions}>
+              <TouchableOpacity style={styles.editButton} onPress={() => startEditTodo(item)}>
+                <Text style={styles.editText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.removeButton} onPress={() => removeTodo(item.id)}>
+                <Text style={styles.removeText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         keyExtractor={item => item.id}
@@ -61,11 +86,11 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop:220,
+
+    marginTop: 190,
     flex: 1,
     padding: 20,
     backgroundColor: '#fff',
-    
   },
   title: {
     fontSize: 30,
@@ -102,8 +127,22 @@ const styles = StyleSheet.create({
   todoText: {
     fontSize: 18,
   },
+  todoActions: {
+    flexDirection: 'row',
+  },
+  editButton: {
+    backgroundColor: '#f39c12',
+    padding: 5,
+    borderRadius: 10,
+    marginRight: 10,
+    alignItems: 'center',
+  },
+  editText: {
+    color: 'white',
+    fontSize: 16,
+  },
   removeButton: {
-    backgroundColor: '#17c1e8',
+    backgroundColor: '#e74c3c',
     padding: 5,
     borderRadius: 10,
     alignItems: 'center',
@@ -113,3 +152,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
